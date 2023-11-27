@@ -1,12 +1,12 @@
 # wasm
-  构建wasm镜像
+## 构建wasm镜像
 
-  安装rust  
+### 安装rust  
 ```  
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-  编译 .wasm 文件  
+### 编译 .wasm 文件  
 ```
 apt-get update && apt-get -y install build-essential && rustup target add wasm32-wasi  
 git clone https://github.com/second-state/wasmedge_wasi_socket.git  
@@ -17,8 +17,7 @@ cd http_server/target/wasm32-wasi/release
   下面会生成一个http_server.wasm二进制文件  
 
 
-  
-  构建镜像，Dockerfile如下  
+### 构建镜像 
 ```
 FROM scratch  
 ADD http_server.wasm  
@@ -34,6 +33,6 @@ docker build . -t docker.io/wangqiongkaka/http_server_wasm:v1.0
 buildah build . --annotation "module.wasm.image/variant=compat-smart" -t docker.io/wangqiongkaka/http_server_wasm:v1.1
 ```
 
-  参考文档  
+## 参考文档  
 https://github.com/second-state/wasmedge-containers-examples/blob/main/http_server_wasi_app.md
 https://www.rust-lang.org/tools/install
