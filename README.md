@@ -18,7 +18,7 @@ cd http_server/target/wasm32-wasi/release
     <span style="color:#333333">`ADD http_server.wasm /` </span>   
     <span style="color:#333333">`CMD ["/http_server.wasm"] ` </span>   
 
-docker build . -t docker.io/wangqiongkaka/http_server_wasm:v1.0
+    <span style="color:#333333">`docker build . -t docker.io/wangqiongkaka/http_server_wasm:v1.0` </span>   
 
 
   crun容器运行时可以启动基于WebAssembly的容器镜像。但它需要在容器镜像上添加module.wasm.image/variant=compat-smart注释，以表明它是一个没有客户操作系统的WebAssembly应用程序。要在容器镜像中添加module.wasm.image/variant=compat-smart，目前Docker不支持此功能，需要使用最新的buildah
