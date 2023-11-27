@@ -42,7 +42,6 @@ sudo systemctl start containerd
 ```
 ## 对接crun
    containerd使用crun拉起一个wasm容器
-
 ### 拉取我们之前构建的wasm镜像
 ```
 ctr i pull docker.io/wangqiongkaka/http_server_wasm:v1.0
@@ -52,12 +51,10 @@ ctr i pull docker.io/wangqiongkaka/http_server_wasm:v1.0
 ```
 ctr run --rm --net-host --runc-binary crun --runtime io.containerd.runc.v2 --label module.wasm.image/variant=compat-smart docker.io/wangqiongkaka/http_server_wasm:v1.0 http-server-example /http_server.wasm
 ```
-
 ### 执行验证
 ```
 curl -d "name=crun" -X POST http://127.0.0.1:1234
 ```
-
 ### 使用crun运行普通容器
    拉取一个普通容器
 ```
@@ -66,7 +63,6 @@ ctr run --rm --net-host --runc-binary crun --runtime io.containerd.runc.v2 docke
 curl 127.0.0.1
 ```
    跟我们使用runc运行普通容器是一样的效果
-
 ## 查看进程执行过程
    我们可以使用ebpf查看containerd拉起一个容器时的执行过程
 ```
@@ -128,7 +124,6 @@ runc             15362  15291    0 /usr/local/sbin/runc --root /run/containerd/r
 containerd-shim  15369  14425    0 /usr/local/bin/containerd-shim-runc-v2 -namespace default -address /run/containerd/containerd.sock -publish-binary /usr/local/bin/containerd -id nginx -bundle /run/containerd/io.containerd.runtime.v2.task/default/nginx delete
 runc             15375  15369    0 /usr/local/sbin/runc --root /run/containerd/runc/default --log /run/containerd/io.containerd.runtime.v2.task/default/nginx/log.json --log-format json delete --force nginx
 ```
-
    对比crun拉起一个普通容器的执行过程
 ```
 ctr run --rm --net-host --runc-binary crun --runtime io.containerd.runc.v2 docker.io/wangqiongkaka/nginx:latest nginx
@@ -172,6 +167,5 @@ crun             15455  15447    0 /usr/local/bin/crun --root /run/containerd/ru
 dumpe2fs         15456  3198     0 /usr/sbin/dumpe2fs -h /dev/vda2
 dumpe2fs         15458  3198     0 /usr/sbin/dumpe2fs -h /dev/vda2
 ```
-
 ## 结论
    crun既能执行wasm容器也可以执行普通容器，crun与runc都支持 containerd-shim-runc-v2，调用过程都是一样的，都是先create然后start接着delete，理论上我们可以直接使用crun代替runc
