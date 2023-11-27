@@ -1,8 +1,8 @@
-#containerd对接crun  
+# crun  
 
-## 编译安装crun  
+## 编译安装crun
 
-### 安装wasmedge  
+### 安装wasmedge
 ```
 wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -p /usr/local
 ```
@@ -16,6 +16,7 @@ sudo apt install -y make git gcc build-essential pkgconf libtool \
 ```
 
 ### 编译crun
+   编译完成以后在/usr/local/bin目录可以看到crun的二进制文件
 ```
 git clone https://github.com/containers/crun
 cd crun
@@ -25,9 +26,9 @@ make
 sudo make install
 ```
 
-#在 /usr/local/bin 目录可以看到crun的二进制文件
-
-#安装containerd
+## 安装containerd
+   安装成功以后在/usr/local/bin目录可以看到containerd相关的二进制文件
+```
 export VERSION="1.5.7"
 echo -e "Version: $VERSION"
 echo -e "Installing libseccomp2 ..."
@@ -42,43 +43,49 @@ sha256sum --check cri-containerd-cni-${VERSION}-linux-amd64.tar.gz.sha256sum
 sudo tar --no-overwrite-dir -C / -xzf cri-containerd-cni-${VERSION}-linux-amd64.tar.gz
 sudo systemctl daemon-reload
 sudo systemctl start containerd
+```
+## 对接crun
+   containerd使用crun拉起一个wasm容器
 
-#在 /usr/local/bin 目录可以看到containerd相关的二进制文件
-
-#containerd使用crun拉起一个wasm容器
-
-#拉取上文中构建的wasm镜像
+### 拉取上文中构建的wasm镜像
+```
 ctr i pull docker.io/wangqiongkaka/http_server_wasm:v1.0
+```
 
-#这里需要注意运行wasm容器需添加 label module.wasm.image/variant 告诉crun使用的wasm
+### 拉起容器
+   这里需要注意运行wasm容器需添加 label module.wasm.image/variant 告诉crun使用的wasm
+```
 ctr run --rm --net-host --runc-binary crun --runtime io.containerd.runc.v2 --label module.wasm.image/variant=compat-smart docker.io/wangqiongkaka/http_server_wasm:v1.0 http-server-example /http_server.wasm
+```
 
-#执行验证
+### 执行验证
+```
 curl -d "name=crun" -X POST http://127.0.0.1:1234
+```
 
-#使用crun运行普通容器
-
-#拉取一个普通容器
+### 使用crun运行普通容器
+   拉取一个普通容器
+```
 ctr i pull docker.io/wangqiongkaka/nginx:latest
-
 ctr run --rm --net-host --runc-binary crun --runtime io.containerd.runc.v2 docker.io/wangqiongkaka/nginx:latest nginx
-
 curl 127.0.0.1
+```
+   跟我们使用runc运行普通容器是一样的效果
 
-#跟我们使用runc运行普通容器是一样的效果
-
-#我们可以使用ebpf查看containerd拉起一个容器时的执行过程
+## 查看进程执行过程
+   我们可以使用ebpf查看containerd拉起一个容器时的执行过程
+```
 apt-get -y install bpfcc-tools
-
-#执行execsnoop-bpfcc
+```
+   执行execsnoop-bpfcc
+```
 execsnoop-bpfcc
-
-#我们新开一个窗口拉起一个wasm容器
+```
+   我们新开一个窗口拉起一个wasm容器，执行过程如下(crun 执行一个wasm容器)
+```
 ctr run --rm --net-host --runc-binary crun --runtime io.containerd.runc.v2 --label module.wasm.image/variant=compat-smart docker.io/wangqiongkaka/http_server_wasm:v1.0 http-server-example1 /http_server.wasm
-
-#执行过程如下(crun 执行一个wasm容器)
-ctr run --rm --net-host --runc-binary crun --runtime io.containerd.runc.v2 --label module.wasm.image/variant=compat-smart docker.io/wangqiongkaka/http_server_wasm:v1.0 http-server-example1 /http_server.wasm
-
+```
+```
 ctr              15146  14607    0 /usr/local/bin/ctr run --rm --net-host --runc-binary crun --runtime io.containerd.runc.v2 --label module.wasm.image/variant=compat-smart docker.io/wangqiongkaka/http_server_wasm:v1.0 http-server-example1 /http_server.wasm
 containerd-shim  15155  14425    0 /usr/local/bin/containerd-shim-runc-v2 -namespace default -address /run/containerd/containerd.sock -publish-binary /usr/local/bin/containerd -id http-server-example1 start
 containerd-shim  15163  15155    0 /usr/local/bin/containerd-shim-runc-v2 -namespace default -id http-server-example1 -address /run/containerd/containerd.sock
@@ -89,10 +96,12 @@ crun             15176  15163    0 /usr/local/bin/crun --root /run/containerd/ru
 crun             15179  15163    0 /usr/local/bin/crun --root /run/containerd/runc/default --log /run/containerd/io.containerd.runtime.v2.task/default/http-server-example1/log.json --log-format json delete http-server-example1
 containerd-shim  15181  14425    0 /usr/local/bin/containerd-shim-runc-v2 -namespace default -address /run/containerd/containerd.sock -publish-binary /usr/local/bin/containerd -id http-server-example1 -bundle /run/containerd/io.containerd.runtime.v2.task/default/http-server-example1 delete
 crun             15190  15181    0 /usr/local/bin/crun --root /run/containerd/runc/default --log /run/containerd/io.containerd.runtime.v2.task/default/http-server-example1/log.json --log-format json delete --force http-server-example1
-
-#对比runc的执行过程(runc执行一个普通容器)
+```
+   对比runc拉起一个普通容器的执行过程
+```
 ctr run --rm --net-host --runc-binary runc --runtime io.containerd.runc.v2 docker.io/wangqiongkaka/nginx:latest nginx
-
+```
+```
 ctr              15274  14607    0 /usr/local/bin/ctr run --rm --net-host --runc-binary runc --runtime io.containerd.runc.v2 docker.io/wangqiongkaka/nginx:latest nginx
 containerd-shim  15283  14425    0 /usr/local/bin/containerd-shim-runc-v2 -namespace default -address /run/containerd/containerd.sock -publish-binary /usr/local/bin/containerd -id nginx start
 containerd-shim  15291  15283    0 /usr/local/bin/containerd-shim-runc-v2 -namespace default -id nginx -address /run/containerd/containerd.sock
@@ -123,10 +132,13 @@ runc             15354  15291    0 /usr/local/sbin/runc --root /run/containerd/r
 runc             15362  15291    0 /usr/local/sbin/runc --root /run/containerd/runc/default --log /run/containerd/io.containerd.runtime.v2.task/default/nginx/log.json --log-format json delete nginx
 containerd-shim  15369  14425    0 /usr/local/bin/containerd-shim-runc-v2 -namespace default -address /run/containerd/containerd.sock -publish-binary /usr/local/bin/containerd -id nginx -bundle /run/containerd/io.containerd.runtime.v2.task/default/nginx delete
 runc             15375  15369    0 /usr/local/sbin/runc --root /run/containerd/runc/default --log /run/containerd/io.containerd.runtime.v2.task/default/nginx/log.json --log-format json delete --force nginx
+```
 
-##对比crun的执行过程(crun执行一个普通容器)
+   对比crun拉起一个普通容器的执行过程
+```
 ctr run --rm --net-host --runc-binary crun --runtime io.containerd.runc.v2 docker.io/wangqiongkaka/nginx:latest nginx
-
+```
+```
 ctr              15383  14607    0 /usr/local/bin/ctr run --rm --net-host --runc-binary crun --runtime io.containerd.runc.v2 docker.io/wangqiongkaka/nginx:latest nginx
 containerd-shim  15392  14425    0 /usr/local/bin/containerd-shim-runc-v2 -namespace default -address /run/containerd/containerd.sock -publish-binary /usr/local/bin/containerd -id nginx start
 containerd-shim  15398  15392    0 /usr/local/bin/containerd-shim-runc-v2 -namespace default -id nginx -address /run/containerd/containerd.sock
@@ -164,6 +176,7 @@ containerd-shim  15447  14425    0 /usr/local/bin/containerd-shim-runc-v2 -names
 crun             15455  15447    0 /usr/local/bin/crun --root /run/containerd/runc/default --log /run/containerd/io.containerd.runtime.v2.task/default/nginx/log.json --log-format json delete --force nginx
 dumpe2fs         15456  3198     0 /usr/sbin/dumpe2fs -h /dev/vda2
 dumpe2fs         15458  3198     0 /usr/sbin/dumpe2fs -h /dev/vda2
+```
 
-#结论
-crun既能执行wasm容器也可以执行普通容器，crun与runc都支持 containerd-shim-runc-v2，调用过程都是一样的，都是先create然后start接着delete，理论上我们可以直接使用crun代替runc
+## 结论
+   crun既能执行wasm容器也可以执行普通容器，crun与runc都支持 containerd-shim-runc-v2，调用过程都是一样的，都是先create然后start接着delete，理论上我们可以直接使用crun代替runc
