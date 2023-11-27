@@ -6,13 +6,13 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 #参考官方文档  
 https://www.rust-lang.org/tools/install
 
-#编译 .wasm 文件
-apt-get update && apt-get -y install build-essential && rustup target add wasm32-wasi
-git clone https://github.com/second-state/wasmedge_wasi_socket.git
-cd wasmedge_wasi_socket/examples/http_server
-cargo build --target wasm32-wasi --release
-cd http_server/target/wasm32-wasi/release
-#下面会生成一个http_server.wasm二进制文件
+#编译 .wasm 文件  
+apt-get update && apt-get -y install build-essential && rustup target add wasm32-wasi  
+git clone https://github.com/second-state/wasmedge_wasi_socket.git  
+cd wasmedge_wasi_socket/examples/http_server  
+cargo build --target wasm32-wasi --release  
+cd http_server/target/wasm32-wasi/release  
+#下面会生成一个http_server.wasm二进制文件  
 
 
 #构建镜像
