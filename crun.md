@@ -1,12 +1,10 @@
 # crun  
 
 ## 编译安装crun
-
 ### 安装wasmedge
 ```
 wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -p /usr/local
 ```
-
 ### 安装依赖包
 ```
 sudo apt update
@@ -14,7 +12,6 @@ sudo apt install -y make git gcc build-essential pkgconf libtool \
    libsystemd-dev libprotobuf-c-dev libcap-dev libseccomp-dev libyajl-dev \
    go-md2man libtool autoconf python3 automake
 ```
-
 ### 编译crun
    编译完成以后在/usr/local/bin目录可以看到crun的二进制文件
 ```
@@ -25,7 +22,6 @@ cd crun
 make
 sudo make install
 ```
-
 ## 安装containerd
    安装成功以后在/usr/local/bin目录可以看到containerd相关的二进制文件
 ```
@@ -47,11 +43,10 @@ sudo systemctl start containerd
 ## 对接crun
    containerd使用crun拉起一个wasm容器
 
-### 拉取上文中构建的wasm镜像
+### 拉取我们之前构建的wasm镜像
 ```
 ctr i pull docker.io/wangqiongkaka/http_server_wasm:v1.0
 ```
-
 ### 拉起容器
    这里需要注意运行wasm容器需添加 label module.wasm.image/variant 告诉crun使用的wasm
 ```
