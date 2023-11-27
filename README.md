@@ -4,7 +4,7 @@
   安装rust  
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  
 
-#编译 .wasm 文件  
+  编译 .wasm 文件  
 apt-get update && apt-get -y install build-essential && rustup target add wasm32-wasi  
 git clone https://github.com/second-state/wasmedge_wasi_socket.git  
 cd wasmedge_wasi_socket/examples/http_server  
@@ -14,6 +14,7 @@ cd http_server/target/wasm32-wasi/release
 
 
   构建镜像，Dockerfile如下  
+    <span style="color:#333333">`FROM scratch` </span> 
 FROM scratch  
 ADD http_server.wasm /  
 CMD ["/http_server.wasm"]  
