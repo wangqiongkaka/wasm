@@ -14,7 +14,9 @@ cd http_server/target/wasm32-wasi/release
 
 
   构建镜像，Dockerfile如下  
-    <span style="color:#333333">`FROM scratch` </span> 
+    <span style="color:#333333">`FROM scratch 
+    ADD http_server.wasm / 
+    CMD ["/http_server.wasm"] ` </span> 
 FROM scratch  
 ADD http_server.wasm /  
 CMD ["/http_server.wasm"]  
