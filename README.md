@@ -1,9 +1,9 @@
 # wasm
 #构建wasm镜像
 
-#安装rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-#参考官方文档
+#安装rust  
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  
+#参考官方文档  
 https://www.rust-lang.org/tools/install
 
 #编译 .wasm 文件
