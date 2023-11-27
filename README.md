@@ -34,5 +34,5 @@ buildah build . --annotation "module.wasm.image/variant=compat-smart" -t docker.
 ```
 
 ## 参考文档  
-https://github.com/second-state/wasmedge-containers-examples/blob/main/http_server_wasi_app.md
+https://github.com/second-state/wasmedge-containers-examples/blob/main/http_server_wasi_app.md  
 https://www.rust-lang.org/tools/install
