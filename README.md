@@ -15,12 +15,10 @@ cd http_server/target/wasm32-wasi/release
 #下面会生成一个http_server.wasm二进制文件  
 
 
-#构建镜像
-Dockerfile 如下
-
-FROM scratch
-ADD http_server.wasm /
-CMD ["/http_server.wasm"]
+#构建镜像，Dockerfile如下  
+FROM scratch  
+ADD http_server.wasm /  
+CMD ["/http_server.wasm"]  
 
 docker build . -t docker.io/wangqiongkaka/http_server_wasm:v1.0
 
